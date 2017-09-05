@@ -52,6 +52,7 @@ namespace ASRARFBuilder
             ASR.NotificationMessage.ProducerReference.Address = this.SecurityCenterAddress;
             ASR.NotificationMessage.ProducerReference.Metadata = new ASRARFTypes.ASR.Metadata() { MessageID = this.SecurityCenterAddress };
             ASR.NotificationMessage.ProducerReference.Metadata.taggedString = new ASRARFTypes.ASR.taggedString() { name = this.DataPublisher , value = this.DataPublisherVer};
+            ASR.NotificationMessage.Message = new ASRARFTypes.ASR.NotifyNotificationMessageMessage();
             ASR.NotificationMessage.Message.ResultsPackage = new ASRARFTypes.ASR.ResultsPackage();
             ASR.NotificationMessage.Message.ResultsPackage.PopulationCharacteristics = new ASRARFTypes.ASR.ResultsPackagePopulationCharacteristics();
             ASR.NotificationMessage.Message.ResultsPackage.PopulationCharacteristics.populationSize = (byte)this.ACASResults.Report.ReportHost.Length;
@@ -59,7 +60,45 @@ namespace ASRARFBuilder
 
             ASR.NotificationMessage.Message.ResultsPackage.benchmark = new ASRARFTypes.ASR.ResultsPackageBenchmark();
             ASR.NotificationMessage.Message.ResultsPackage.benchmark.benchMarkID = new ASRARFTypes.ASR.ResultsPackageBenchmarkBenchMarkID();
-            //ASR.NotificationMessage.Message.ResultsPackage.benchmark.benchMarkID.resource = 
+            ASR.NotificationMessage.Message.ResultsPackage.benchmark.benchMarkID.resource = this.SecurityCenterAddress;
+            ASR.NotificationMessage.Message.ResultsPackage.benchmark.benchMarkID.record_identifier = "acas.plugin.results";
+
+            var RuleResultList = new List<ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResult>();
+
+            var plugin_set_Preferences = this.ACASResults.Policy.Preferences.ServerPreferences.FirstOrDefault(p => p.name == "plugin_set");
+
+            if(plugin_set_Preferences == null)
+            {
+                throw new Exception("ACAS scan is missing plugin set infomation");
+            }
+
+            var plugin_set = plugin_set_Preferences.value.Split( new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(Int32.Parse).ToArray();
+
+            foreach(var plugin in plugin_set)
+            {
+                var pluginResult = this.ACASResults.Report.ReportHost.SelectMany(h=> h.ReportItem, (host, reportItem) => new { host.name, reportItem.severity, reportItem.pluginID }).Where(h => h.pluginID == plugin).ToArray();
+                if (pluginResult.Length > 0)
+                {
+                    var RuleResult = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResult() { ident = pluginResult[0].pluginID, ruleID = pluginResult[0].pluginID };
+                    RuleResult.ruleComplianceItem = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItem();
+                    RuleResult.ruleComplianceItem.ruleResult = pluginResult[0].severity == 0 ? "informational" : "fail";
+                    RuleResult.ruleComplianceItem.result = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResult() { count = (byte)pluginResult.Length };
+                  
+                    var deviceRecordList = new List<ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResultDeviceRecord>();
+
+                    foreach(var device in pluginResult)
+                    {
+                        var deviceRecord = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResultDeviceRecord() { record_identifier = device.name };
+                        deviceRecordList.Add(deviceRecord);
+                    }
+
+                    RuleResult.ruleComplianceItem.result.deviceRecord = deviceRecordList.ToArray();
+
+                    RuleResultList.Add(RuleResult);
+                }
+
+            }
+            ASR.NotificationMessage.Message.ResultsPackage.benchmark.ruleResult = RuleResultList.ToArray();
 
             return ASR;
         }
