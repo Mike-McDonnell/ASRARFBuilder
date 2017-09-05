@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASRARFBuilder", "ASRARFBuilder\ASRARFBuilder.csproj", "{B397CE89-A571-4225-AEFC-02E8CE5DEA4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACAStoAssesmentReport", "ACAStoAssesmentReport\ACAStoAssesmentReport.csproj", "{491EB9F8-EA29-4599-84DC-68728A25EF1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B397CE89-A571-4225-AEFC-02E8CE5DEA4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B397CE89-A571-4225-AEFC-02E8CE5DEA4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B397CE89-A571-4225-AEFC-02E8CE5DEA4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B397CE89-A571-4225-AEFC-02E8CE5DEA4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{491EB9F8-EA29-4599-84DC-68728A25EF1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{491EB9F8-EA29-4599-84DC-68728A25EF1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{491EB9F8-EA29-4599-84DC-68728A25EF1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{491EB9F8-EA29-4599-84DC-68728A25EF1C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
