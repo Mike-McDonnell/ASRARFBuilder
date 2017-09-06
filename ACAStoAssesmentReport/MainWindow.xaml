@@ -7,7 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <Button x:Name="SelectScanButton" Content="Select ACAS Scan" HorizontalAlignment="Left" Margin="84,259,0,0" VerticalAlignment="Top" Width="75" Click="SelectScanButton_Click"/>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" HorizontalAlignment="Center" Content="ACAS to .ASR and .ARF" />
+        <DataGrid Grid.Row="1" x:Name="ScanDataGrid" AutoGenerateColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding ASRReportType}" Header="Report Type" />
+                <DataGridTextColumn Binding="{Binding SecurityCenterAddress}" Header="Security Center Server FDGN" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Grid.Row="2" x:Name="SelectScanButton" Content="Open" HorizontalAlignment="left"  VerticalAlignment="Center" Width="109" Margin="10,0,0,0" Click="SelectScanButton_Click"/>
+        <Button Grid.Row="2" x:Name="SaveButton" Content="Save" HorizontalAlignment="right" IsEnabled="False"  VerticalAlignment="Center" Width="109" Margin="0,0,10,0" Click="SaveButton_Click" />
     </Grid>
 </Window>

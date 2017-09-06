@@ -20,26 +20,26 @@ namespace ACAStoAssesmentReport
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ARequest arequest;
+        private string ACASFileName;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            arequest = new ARequest();
+
+            ScanDataGrid.ItemsSource = new List<ARequest>() { arequest };
         }
 
         private void SelectScanButton_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            
-            if(dlg.ShowDialog() == true)
+            dlg.FileName = "*.nessus";
+            dlg.Filter = "ACAS scan file (*.nessus)|*.nessus";
+
+            if (dlg.ShowDialog() == true)
             {
-                ASRARFBuilder.Converter converter = new ASRARFBuilder.Converter();
-
-                var arequest = new ARequest();
-
-                arequest.SecurityCenterAddress = "Generic.SecuritySystem.com";
-                arequest.DataPublisherVersion = "1.0";
-                arequest.DataPublisher = "Assesment Report Publisher";
-                arequest.ASRReportType = "acas.plugin.results";
-
                 using (var filestream = dlg.OpenFile())
                 {
                     using (var streamReader = new System.IO.StreamReader(filestream, Encoding.UTF8))
@@ -48,9 +48,30 @@ namespace ACAStoAssesmentReport
                     }
                 }
 
-                var test = converter.ProcessAssesmentRequest(arequest);
+                ACASFileName = dlg.FileName;
+                SaveButton.IsEnabled = true;
+            }
+        }
 
-                var test2 = test.ARFXML;
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = ACASFileName.Replace(".nessus", "");
+
+            if (dlg.ShowDialog() == true)
+            {
+                ASRARFBuilder.Converter converter = new ASRARFBuilder.Converter();
+                var response = converter.ProcessAssesmentRequest(arequest);
+
+                using (System.IO.StreamWriter filestream = new System.IO.StreamWriter(dlg.FileName + ".ARF.xml", false, Encoding.UTF8))
+                {
+                    filestream.WriteLine(response.ARFXML);
+                }
+
+                using (System.IO.StreamWriter filestream = new System.IO.StreamWriter(dlg.FileName + ".ASR.xml", false, Encoding.UTF8))
+                {
+                    filestream.WriteLine(response.ASRXML);
+                }
             }
         }
     }

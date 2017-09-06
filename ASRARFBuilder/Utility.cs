@@ -76,9 +76,10 @@ namespace ASRARFBuilder
 
             foreach(var plugin in plugin_set)
             {
-                var pluginResult = this.ACASResults.Report.ReportHost.SelectMany(h=> h.ReportItem, (host, reportItem) => new { host.name, reportItem.severity, reportItem.pluginID }).Where(h => h.pluginID == plugin).ToArray();
+                var pluginResult = this.ACASResults.Report.ReportHost.SelectMany(h=> h.ReportItem, (host, reportItem) => new { host, reportItem.severity, reportItem.pluginID }).Where(h => h.pluginID == plugin).Distinct().ToArray();
                 if (pluginResult.Length > 0)
                 {
+
                     var RuleResult = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResult() { ident = pluginResult[0].pluginID, ruleID = pluginResult[0].pluginID };
                     RuleResult.ruleComplianceItem = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItem();
                     RuleResult.ruleComplianceItem.ruleResult = pluginResult[0].severity == 0 ? "informational" : "fail";
@@ -88,7 +89,11 @@ namespace ASRARFBuilder
 
                     foreach(var device in pluginResult)
                     {
-                        var deviceRecord = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResultDeviceRecord() { record_identifier = device.name };
+                        var deviceRecord = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResultDeviceRecord() { record_identifier = device.host.name };
+
+                        var hostname = GetRecordIdentifier(device.host);
+                        deviceRecord = new ASRARFTypes.ASR.ResultsPackageBenchmarkRuleResultRuleComplianceItemResultDeviceRecord() { record_identifier = hostname };
+
                         deviceRecordList.Add(deviceRecord);
                     }
 
@@ -131,13 +136,18 @@ namespace ASRARFBuilder
 
                 ARF.NotificationMessage.Message.AssessmentReport[x].device.device_ID = new ASRARFTypes.ARF.device_ID();
                 ARF.NotificationMessage.Message.AssessmentReport[x].device.device_ID.resource = this.SecurityCenterAddress;
-                ARF.NotificationMessage.Message.AssessmentReport[x].device.device_ID.record_identifier = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "host-fqdn").Value;
+
+
+                var fqdn_Properties = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "host-fqdn");
+                var netBiosname = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "netbios-name");
+                var DNSname = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "hostname");
+
+                ARF.NotificationMessage.Message.AssessmentReport[x].device.device_ID.record_identifier = GetRecordIdentifier(this.ACASResults.Report.ReportHost[x]);
 
                 ARF.NotificationMessage.Message.AssessmentReport[x].device.identifiers = new ASRARFTypes.ARF.identifiersFQDN[2];
-                var netBiosname = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "netbios-name");
                 if(netBiosname != null)
                     ARF.NotificationMessage.Message.AssessmentReport[x].device.identifiers[0] = new ASRARFTypes.ARF.identifiersFQDN() { host_name = netBiosname.Value, source = "NetBIOS", realm = "" };
-                var DNSname = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "hostname");
+
                 if(DNSname != null)
                     ARF.NotificationMessage.Message.AssessmentReport[x].device.identifiers[1] = new ASRARFTypes.ARF.identifiersFQDN() { host_name = DNSname.Value, source = "DNS", realm = "" };
 
@@ -196,6 +206,28 @@ namespace ASRARFBuilder
             }
             
             return ARF; 
+        }
+
+        private string GetRecordIdentifier(ACASType.NessusClientData_v2ReportReportHost host)
+        {
+            var fqdn_Properties = host.HostProperties.FirstOrDefault(hp => hp.name == "host-fqdn");
+            var netBiosname = host.HostProperties.FirstOrDefault(hp => hp.name == "netbios-name");
+            var DNSname = host.HostProperties.FirstOrDefault(hp => hp.name == "hostname");
+
+            if (fqdn_Properties != null)
+            {
+                return fqdn_Properties.Value;
+            }
+            else if (DNSname != null)
+            {
+                return DNSname.Value;
+            }
+            else if (netBiosname != null)
+            {
+                return netBiosname.Value;
+            }
+            else
+                return host.name;
         }
 
         private string CalculateISO8601SFromJavaSeconds(string seconds)
