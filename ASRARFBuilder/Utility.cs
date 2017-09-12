@@ -35,6 +35,16 @@ namespace ASRARFBuilder
             }
         }
 
+        public Task<IAssesmentResult> ProcessAssesmentRequestAsync(IAssesmentResultRequest request)
+        {
+           var task = Task.Run<IAssesmentResult>(() => {
+
+                return this.ProcessAssesmentRequest(request);
+            } );
+
+            return task;
+        }
+
         private IAssesmentResult BuildReport()
         {
             var ARF = GenerateARF(new Models.ASRARFTypes.ARF.Notify());

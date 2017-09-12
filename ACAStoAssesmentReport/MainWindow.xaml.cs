@@ -53,7 +53,7 @@ namespace ACAStoAssesmentReport
             }
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.FileName = ACASFileName.Replace(".nessus", "");
@@ -61,16 +61,16 @@ namespace ACAStoAssesmentReport
             if (dlg.ShowDialog() == true)
             {
                 ASRARFBuilder.Converter converter = new ASRARFBuilder.Converter();
-                var response = converter.ProcessAssesmentRequest(arequest);
+                var response2 = await converter.ProcessAssesmentRequestAsync(arequest);
 
                 using (System.IO.StreamWriter filestream = new System.IO.StreamWriter(dlg.FileName + ".ARF.xml", false, Encoding.UTF8))
                 {
-                    filestream.WriteLine(response.ARFXML);
+                    filestream.WriteLine(response2.ARFXML);
                 }
 
                 using (System.IO.StreamWriter filestream = new System.IO.StreamWriter(dlg.FileName + ".ASR.xml", false, Encoding.UTF8))
                 {
-                    filestream.WriteLine(response.ASRXML);
+                    filestream.WriteLine(response2.ASRXML);
                 }
             }
         }
