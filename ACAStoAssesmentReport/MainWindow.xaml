@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition />
+            <RowDefinition Height="25" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Label Grid.Row="0" HorizontalAlignment="Center" Content="ACAS to .ASR and .ARF" />
@@ -19,7 +20,8 @@
                 <DataGridTextColumn Binding="{Binding SecurityCenterAddress}" Header="Security Center Server FDGN" />
             </DataGrid.Columns>
         </DataGrid>
-        <Button Grid.Row="2" x:Name="SelectScanButton" Content="Open" HorizontalAlignment="left"  VerticalAlignment="Center" Width="109" Margin="10,0,0,0" Click="SelectScanButton_Click"/>
-        <Button Grid.Row="2" x:Name="SaveButton" Content="Save" HorizontalAlignment="right" IsEnabled="False"  VerticalAlignment="Center" Width="109" Margin="0,0,10,0" Click="SaveButton_Click" />
+        <ProgressBar Grid.Row="2" x:Name="ProcessProgressBar" IsIndeterminate="True" Visibility="Hidden"  />
+        <Button Grid.Row="3" x:Name="SelectScanButton" Content="Open" HorizontalAlignment="left"  VerticalAlignment="Center" Width="109" Margin="10,0,0,0" Click="SelectScanButton_Click"/>
+        <Button Grid.Row="3" x:Name="SaveButton" Content="Save" HorizontalAlignment="right" IsEnabled="False"  VerticalAlignment="Center" Width="109" Margin="0,0,10,0" Click="SaveButton_Click" />
     </Grid>
 </Window>

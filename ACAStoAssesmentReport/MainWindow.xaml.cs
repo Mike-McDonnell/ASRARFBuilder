@@ -61,7 +61,9 @@ namespace ACAStoAssesmentReport
             if (dlg.ShowDialog() == true)
             {
                 ASRARFBuilder.Converter converter = new ASRARFBuilder.Converter();
+                this.ProcessProgressBar.Visibility = Visibility.Visible;
                 var response2 = await converter.ProcessAssesmentRequestAsync(arequest);
+                this.ProcessProgressBar.Visibility = Visibility.Hidden;
 
                 using (System.IO.StreamWriter filestream = new System.IO.StreamWriter(dlg.FileName + ".ARF.xml", false, Encoding.UTF8))
                 {
