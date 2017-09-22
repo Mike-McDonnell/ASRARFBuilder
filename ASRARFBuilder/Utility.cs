@@ -203,11 +203,15 @@ namespace ASRARFBuilder
                     }
                 }
 
-                string lastscandate = CalculateISO8601SFromJavaSeconds(this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "LastAuthenticatedResults").Value);
-                ARF.NotificationMessage.Message.AssessmentReport[x].device.taggedString[2] = new ASRARFTypes.ARF.taggedString() { name = "LastCredScan", value = lastscandate };
+                var lastscandate = FindLastScanDate(this.ACASResults.Report.ReportHost[x].HostProperties);
+                if(lastscandate != null)
+                    ARF.NotificationMessage.Message.AssessmentReport[x].device.taggedString[2] = new ASRARFTypes.ARF.taggedString() { name = "LastCredScan", value = lastscandate };
 
                 ARF.NotificationMessage.Message.AssessmentReport[x].device.taggedString[1] = new ASRARFTypes.ARF.taggedString() { name = "ScanPolicy", value = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "policy-used").Value };
-                ARF.NotificationMessage.Message.AssessmentReport[x].device.taggedString[3] = new ASRARFTypes.ARF.taggedString() { name = "BIOSGUID", value = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "bios-uuid").Value };
+
+                var biosuuid = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "bios-uuid");
+                if(biosuuid != null)
+                    ARF.NotificationMessage.Message.AssessmentReport[x].device.taggedString[3] = new ASRARFTypes.ARF.taggedString() { name = "BIOSGUID", value = biosuuid.Value };
 
                 var mcafeeAgentGUID = this.ACASResults.Report.ReportHost[x].HostProperties.FirstOrDefault(hp => hp.name == "mcafee-epo-guid");
                 if(mcafeeAgentGUID != null)
@@ -216,6 +220,25 @@ namespace ASRARFBuilder
             }
             
             return ARF; 
+        }
+
+        private string FindLastScanDate(ACASType.NessusClientData_v2ReportReportHostTag[] hostProperties)
+        {
+            var lastcredscandate = hostProperties.FirstOrDefault(hp => hp.name == "LastAuthenticatedResults");
+            var lastuncredscandate = hostProperties.FirstOrDefault(hp => hp.name == "LastUnauthenticatedResults");
+
+            if (lastcredscandate != null)
+            {
+                return CalculateISO8601SFromJavaSeconds(lastcredscandate.Value);
+
+            }
+            else if (lastuncredscandate != null)
+            {
+                return null;
+                //Future update write to report of converstion status : unauthernticatedresults
+            }
+
+            return null;
         }
 
         private string GetRecordIdentifier(ACASType.NessusClientData_v2ReportReportHost host)
