@@ -1,7 +1,7 @@
 # ASRARFBuilder
 Library for converting ACAS .nessus scan to ARF and ASR result files
 
-# How to Build the app:
+# How to Build and run the app:
 ## Step 1: Open Visual Studio
 VSCode may not work (at least I couldn't get it to work with it)
 
